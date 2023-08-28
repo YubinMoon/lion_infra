@@ -84,7 +84,7 @@ resource "ncloud_access_control_group_rule" "main" {
   inbound {
     protocol   = "TCP"
     ip_block   = "0.0.0.0/0"
-    port_range = "8000"
+    port_range = var.port
   }
 }
 

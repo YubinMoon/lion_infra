@@ -3,6 +3,10 @@ terraform {
     ncloud = {
       source = "NaverCloudPlatform/ncloud"
     }
+    ssh = {
+      source  = "loafoe/ssh"
+      version = "2.6.0"
+    }
   }
   required_version = ">= 0.13"
 }
@@ -12,6 +16,10 @@ provider "ncloud" {
   secret_key  = var.NCP_SECRET_KEY
   region      = "KR"
   support_vpc = true
+}
+
+provider "ssh" {
+  # Configuration options
 }
 
 module "network" {
@@ -32,6 +40,7 @@ module "db_server" {
   vpc_no         = module.network.vpc_no
   subnet_no      = module.network.server_subnet_no
   private_ip     = cidrhost(data.ncloud_subnet.server.subnet, 6)
+  port           = "5432"
   init_env = {
     password          = var.password
     postgres_db       = var.postgres_db
@@ -57,6 +66,7 @@ module "be_server" {
   vpc_no         = module.network.vpc_no
   subnet_no      = module.network.server_subnet_no
   private_ip     = cidrhost(data.ncloud_subnet.server.subnet, 7)
+  port           = "8000"
   init_env = {
     password          = var.password
     postgres_db       = var.postgres_db
@@ -85,4 +95,46 @@ module "loadbalancer" {
 
 data "ncloud_subnet" "server" {
   id = module.network.server_subnet_no
+}
+
+resource "ssh_resource" "init_db" {
+  when = "create"
+
+  host     = module.db_server.public_ip
+  user     = "terry"
+  password = var.password
+
+  timeout     = "30s"
+  retry_delay = "5s"
+
+  file {
+    source      = "${path.module}/set_db_server.sh"
+    destination = "/home/terry/set_db.sh"
+    permissions = "0700"
+  }
+
+  commands = [
+    ". set_db.sh"
+  ]
+}
+
+resource "ssh_resource" "init_be" {
+  when = "create"
+
+  host     = module.be_server.public_ip
+  user     = "terry"
+  password = var.password
+
+  timeout     = "30s"
+  retry_delay = "5s"
+
+  file {
+    source      = "${path.module}/set_be_server.sh"
+    destination = "/home/terry/set_be.sh"
+    permissions = "0700"
+  }
+
+  commands = [
+    ". set_be.sh"
+  ]
 }
