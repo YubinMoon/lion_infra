@@ -32,6 +32,7 @@ resource "ncloud_server" "server" {
   server_image_product_code = var.server_image_product_code
   server_product_code       = data.ncloud_server_product.product.id
   login_key_name            = ncloud_login_key.loginkey.key_name
+  init_script_no            = ncloud_init_script.init.init_script_no
   network_interface {
     network_interface_no = ncloud_network_interface.main.network_interface_no
     order                = 0
