@@ -98,7 +98,8 @@ data "ncloud_subnet" "server" {
 }
 
 resource "ssh_resource" "init_db" {
-  when = "create"
+  depends_on = [module.db_server]
+  when       = "create"
 
   host     = module.db_server.public_ip
   user     = "terry"
@@ -119,7 +120,8 @@ resource "ssh_resource" "init_db" {
 }
 
 resource "ssh_resource" "init_be" {
-  when = "create"
+  depends_on = [module.be_server]
+  when       = "create"
 
   host     = module.be_server.public_ip
   user     = "terry"
