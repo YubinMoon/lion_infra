@@ -28,6 +28,10 @@ variable "private_ip" {
   type = string
 }
 
+variable "port" {
+  type = string
+}
+
 variable "server_image_product_code" {
   type    = string
   default = "SW.VSVR.OS.LNX64.UBNTU.SVR2004.B050"
