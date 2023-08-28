@@ -72,6 +72,17 @@ module "be_server" {
   }
 }
 
+module "loadbalancer" {
+  source = "../modules/loadbalancer"
+
+  NCP_ACCESS_KEY = var.NCP_ACCESS_KEY
+  NCP_SECRET_KEY = var.NCP_SECRET_KEY
+  env            = var.env
+  vpc_no         = module.network.vpc_no
+  subnet_no      = module.network.loadbalancer_subnet_no
+  server_list    = [module.be_server.server_id]
+}
+
 data "ncloud_subnet" "server" {
   id = module.network.server_subnet_no
 }
